@@ -8,8 +8,6 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserOutputDto {
-    private Long id;
-    private String email;
-    private String username;
+public class LoginUserOutputDto {
+    private String accessToken;
 }
