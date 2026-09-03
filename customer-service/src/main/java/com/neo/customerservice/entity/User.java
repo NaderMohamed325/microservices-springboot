@@ -7,10 +7,9 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity()
 @Getter
@@ -39,13 +38,15 @@ public class User extends BaseEntityAudit implements UserDetails {
     @JsonIgnore
     private String password;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Address> addresses = new ArrayList<>();
 
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     @Builder.Default
     @JsonIgnore
-    private UserRoles role= UserRoles.CUSTOMER;
+    private UserRoles role = UserRoles.CUSTOMER;
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

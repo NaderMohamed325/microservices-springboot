@@ -50,7 +50,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
+        boolean isExpired= extractClaim(token, Claims::getExpiration).before(new Date());
+        if (isExpired) {
+            log.warn("Token is expired: {}", token);
+        }
+        return isExpired;
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
