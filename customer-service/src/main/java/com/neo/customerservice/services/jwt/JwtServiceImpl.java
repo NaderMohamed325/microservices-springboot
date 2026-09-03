@@ -20,7 +20,6 @@ import java.util.function.Function;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
 
-
     @Value("${spring.security.jwt.secret}")
     private String SECRET;
     @Value("${spring.security.jwt.expiration}")
