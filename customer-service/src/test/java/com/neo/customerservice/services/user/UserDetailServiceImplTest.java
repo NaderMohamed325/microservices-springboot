@@ -59,7 +59,7 @@ class UserDetailServiceImplTest {
         UserDetails result = userDetailsService.loadUserByUsername("testuser");
 
         assertThat(result.getAuthorities()).hasSize(1);
-        assertThat(result.getAuthorities().iterator().next()).isEqualTo(new SimpleGrantedAuthority("CUSTOMER"));
+        assertThat(result.getAuthorities().iterator().next()).isEqualTo(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
     }
 
     @Test
