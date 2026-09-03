@@ -1,5 +1,6 @@
 package com.neo.customerservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.neo.customerservice.enums.UserRoles;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity()
 @Getter
@@ -29,16 +32,20 @@ public class User extends BaseEntityAudit implements UserDetails {
     @Column(unique = true, length = 120, nullable = false)
     private String email;
 
-    @Column(length = 120, nullable = false)
+    @Column(length = 120, nullable = false, unique = true)
     private String username;
 
     @Column(length = 120, nullable = false)
+    @JsonIgnore
     private String password;
 
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private UserRoles role = UserRoles.CUSTOMER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    @Builder.Default
+    @JsonIgnore
+    private UserRoles role= UserRoles.CUSTOMER;
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
@@ -46,8 +53,9 @@ public class User extends BaseEntityAudit implements UserDetails {
      * @return the authorities, sorted by natural key (never <code>null</code>)
      */
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(role);
     }
 
     /**

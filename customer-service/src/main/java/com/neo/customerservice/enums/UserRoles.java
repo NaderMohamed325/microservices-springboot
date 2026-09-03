@@ -1,6 +1,14 @@
 package com.neo.customerservice.enums;
 
-public enum UserRoles {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum UserRoles implements GrantedAuthority {
     ADMIN,
-    CUSTOMER,
+    CUSTOMER;
+
+    @Override
+    public String getAuthority() {
+        return
+                "ROLE_" + name();
+    }
 }
