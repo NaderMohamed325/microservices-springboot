@@ -21,18 +21,18 @@ import java.time.LocalDateTime;
 public class BaseEntityAudit {
 
     @CreatedBy
-    @Column(name = "created_by", updatable = false, insertable = false)
+    @Column(name = "created_by", updatable = false, nullable = false)
     private String createdBy;
 
     @LastModifiedBy
-    @Column(name = "last_modified_by", insertable = false, nullable = false)
+    @Column(name = "last_modified_by", nullable = false)
     private String LastModifiedBy;
 
     @CreatedDate
-    @Column(name = "created_date", updatable = false, insertable = false)
+    @Column(name = "created_date", updatable = false, nullable = false)
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    @Column(name = "last_modified_date", insertable = false)
-    private LocalDateTime lastModifiedDate;
+    @Column(name = "last_modified_date")
+    private LocalDateTime LastModifiedDate;
 }
