@@ -1,0 +1,33 @@
+package com.neo.customerservice.dto.user.input;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Schema(description = "DTO for updating an existing user profile")
+public class UpdateUserInputDto {
+
+    @Schema(description = "User ID to update", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NonNull
+    private Long id;
+
+    @Schema(description = "Updated email address", example = "john.doe@example.com")
+    @Email(message = "Email should be valid")
+    private String email;
+
+    @Schema(description = "Updated username", example = "johndoe", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Username is mandatory")
+    private String username;
+
+    @Schema(description = "Updated password (8-30 characters)", example = "newpassword123", minLength = 8, maxLength = 30, requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "Password is mandatory")
+    @Length(min = 8, max = 30, message = "Password must be between 8 and 30 characters")
+    private String password;
+}
