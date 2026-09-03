@@ -9,9 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -20,12 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    Page<User> findAllByRole(UserRoles role , Pageable pageable);
+    Page<User> findAllByRole(UserRoles role, Pageable pageable);
 
 
     @Modifying(
             flushAutomatically = true,
             clearAutomatically = true
-    )    @Query("DELETE FROM User u WHERE u.id = :id")
+    )
+    @Query("DELETE FROM User u WHERE u.id = :id")
     void deleteUserById(Long id);
 }

@@ -7,8 +7,6 @@ import com.neo.customerservice.entity.User;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 
-import java.util.Optional;
-
 public interface UserService {
     UserOutputDto createUser(@NonNull CreateUserInputDto createUserDto);
 
@@ -20,7 +18,7 @@ public interface UserService {
     UserOutputDto updateUser(Long userId, UpdateUserInputDto updateUserInputDto);
 
 
-   User getUserById(Long userId);
+    User getUserById(Long userId);
 
     UserOutputDto getUserByIdOutputDto(Long userId);
 

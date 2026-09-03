@@ -129,8 +129,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
     private UserOutputDto toOutputDto(User user) {
         return UserOutputDto.builder()
                 .id(user.getId())
