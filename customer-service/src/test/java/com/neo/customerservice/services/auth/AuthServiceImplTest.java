@@ -4,6 +4,7 @@ import com.neo.customerservice.dto.user.input.CreateUserInputDto;
 import com.neo.customerservice.dto.user.input.LoginUserInputDto;
 import com.neo.customerservice.dto.user.output.LoginUserOutputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
+import com.neo.customerservice.entity.User;
 import com.neo.customerservice.services.jwt.JwtService;
 import com.neo.customerservice.services.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,20 +70,20 @@ class AuthServiceImplTest {
     @Test
     void login_validCredentials_returnsLoginUserOutputDto() {
         when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken(userDetails)).thenReturn("jwt-token-123");
+        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
 
         LoginUserOutputDto result = authService.login(loginUserInputDto);
 
         assertThat(result).isNotNull();
         assertThat(result.getAccessToken()).isEqualTo("jwt-token-123");
         verify(userDetailsService).loadUserByUsername("testuser");
-        verify(jwtService).generateToken(userDetails);
+        verify(jwtService).generateToken((User) userDetails);
     }
 
     @Test
     void login_validCredentials_loadsUserDetails() {
         when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken(userDetails)).thenReturn("jwt-token-123");
+        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
 
         authService.login(loginUserInputDto);
 
@@ -92,11 +93,11 @@ class AuthServiceImplTest {
     @Test
     void login_validCredentials_generatesToken() {
         when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken(userDetails)).thenReturn("jwt-token-123");
+        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
 
         authService.login(loginUserInputDto);
 
-        verify(jwtService).generateToken(userDetails);
+        verify(jwtService).generateToken((User) userDetails);
     }
 
     @Test

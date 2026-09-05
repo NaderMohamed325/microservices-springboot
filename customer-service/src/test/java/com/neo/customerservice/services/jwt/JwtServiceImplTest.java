@@ -1,5 +1,6 @@
 package com.neo.customerservice.services.jwt;
 
+import com.neo.customerservice.entity.User;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class JwtServiceImplTest {
 
     @Test
     void generateToken_validUserDetails_returnsToken() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         assertThat(token).isNotNull();
         assertThat(token).isNotEmpty();
@@ -44,7 +45,7 @@ class JwtServiceImplTest {
 
     @Test
     void extractUsername_validToken_returnsUsername() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         String extractedUsername = jwtService.extractUsername(token);
 
@@ -53,7 +54,7 @@ class JwtServiceImplTest {
 
     @Test
     void isTokenValid_validTokenAndMatchingUser_returnsTrue() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         boolean isValid = jwtService.isTokenValid(token, userDetails);
 
@@ -63,7 +64,7 @@ class JwtServiceImplTest {
     @Test
     void isTokenValid_expiredToken_returnsFalse() {
         ReflectionTestUtils.setField(jwtService, "EXPIRATION_TIME", -1); // Expire immediately
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         assertThatThrownBy(() -> jwtService.isTokenValid(token, userDetails))
                 .isInstanceOf(io.jsonwebtoken.ExpiredJwtException.class);
@@ -71,7 +72,7 @@ class JwtServiceImplTest {
 
     @Test
     void isTokenValid_wrongUsername_returnsFalse() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         UserDetails differentUser = org.springframework.security.core.userdetails.User.builder()
                 .username("differentuser")
@@ -104,7 +105,7 @@ class JwtServiceImplTest {
 
     @Test
     void generateToken_thenExtractUsername_roundTrip() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         String extractedUsername = jwtService.extractUsername(token);
 
@@ -113,7 +114,7 @@ class JwtServiceImplTest {
 
     @Test
     void isTokenValid_validTokenAndMatchingUser_tokenStructure() {
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken((User) userDetails);
 
         // Token should have 3 parts (header, payload, signature)
         String[] parts = token.split("\\.");

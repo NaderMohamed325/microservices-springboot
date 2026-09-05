@@ -4,6 +4,7 @@ import com.neo.customerservice.dto.user.input.CreateUserInputDto;
 import com.neo.customerservice.dto.user.input.LoginUserInputDto;
 import com.neo.customerservice.dto.user.output.LoginUserOutputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
+import com.neo.customerservice.entity.User;
 import com.neo.customerservice.services.jwt.JwtService;
 import com.neo.customerservice.services.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginUserOutputDto login(LoginUserInputDto loginUserInputDto) {
         log.info("Login attempt for user: {}", loginUserInputDto.getUsername());
-        UserDetails userDetails = userDetailsService.loadUserByUsername(loginUserInputDto.getUsername());
+        User user = (User) userDetailsService.loadUserByUsername(loginUserInputDto.getUsername());
 
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(user);
         log.info("Token generated for user: {}", loginUserInputDto.getUsername());
 
         return new LoginUserOutputDto(token);

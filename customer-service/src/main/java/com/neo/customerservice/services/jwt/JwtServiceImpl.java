@@ -1,6 +1,7 @@
 package com.neo.customerservice.services.jwt;
 
 
+import com.neo.customerservice.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -26,11 +27,12 @@ public class JwtServiceImpl implements JwtService {
     private long EXPIRATION_TIME;
 
     @Override
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
-                .subject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities())
+                .subject(user.getUsername())
+                .claim("roles", user.getAuthorities())
+                .claim("userId", user.getId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey())
