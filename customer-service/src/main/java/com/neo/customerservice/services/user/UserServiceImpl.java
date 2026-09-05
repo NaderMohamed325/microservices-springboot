@@ -1,13 +1,17 @@
 package com.neo.customerservice.services.user;
 
+import com.neo.customerservice.dto.user.events.UserCreatedEvent;
 import com.neo.customerservice.dto.user.input.CreateUserInputDto;
 import com.neo.customerservice.dto.user.input.UpdateUserInputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
 import com.neo.customerservice.entity.User;
+import com.neo.customerservice.enums.AggregateType;
+import com.neo.customerservice.enums.EventType;
 import com.neo.customerservice.enums.UserRoles;
 import com.neo.customerservice.exceptions.UserAlreadyExistsException;
 import com.neo.customerservice.exceptions.UserNotFoundException;
 import com.neo.customerservice.repository.UserRepository;
+import com.neo.customerservice.services.event.EventService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +33,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EventService eventService;
 
     @Override
+    @Transactional
     public UserOutputDto createUser(@NonNull CreateUserInputDto createUserDto) {
 
         boolean existingUser = userRepository.findByUsername(createUserDto.getUsername()).isPresent();
@@ -45,6 +51,19 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(user);
+
+        UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .build();
+
+        eventService.saveEvent(EventType.USER_CUSTOMER_CREATED,
+                AggregateType.USER_CUSTOMER,
+                user.getId(),
+                userCreatedEvent
+        );
+
         log.info("User created with username: {}", user.getUsername());
 
         return toOutputDto(user);
