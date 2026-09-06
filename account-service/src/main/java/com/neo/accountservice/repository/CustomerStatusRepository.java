@@ -12,9 +12,9 @@ public interface CustomerStatusRepository extends JpaRepository<CustomerStatus, 
 
     @Modifying
     @Query(value = """
-        INSERT INTO customer_status (customer_id, status, updated_at)
-        VALUES (:customerId, 'ACTIVE', now())
-        ON CONFLICT (customer_id) DO NOTHING
-        """, nativeQuery = true)
+            INSERT INTO customer_status (customer_id, status, updated_at)
+            VALUES (:customerId, 'ACTIVE', now())
+            ON CONFLICT (customer_id) DO NOTHING
+            """, nativeQuery = true)
     void ensureActiveStatusExists(@Param("customerId") Long customerId);
 }

@@ -22,9 +22,9 @@ public interface CustomerAccountCounterRepository extends JpaRepository<Customer
     // used only to guarantee the row exists before locking it
     @Modifying
     @Query(value = """
-        INSERT INTO customer_account_counter (customer_id, last_seq_no)
-        VALUES (:customerId, -1)
-        ON CONFLICT (customer_id) DO NOTHING
-        """, nativeQuery = true)
+            INSERT INTO customer_account_counter (customer_id, last_seq_no)
+            VALUES (:customerId, -1)
+            ON CONFLICT (customer_id) DO NOTHING
+            """, nativeQuery = true)
     void ensureCounterExists(@Param("customerId") Long customerId);
 }

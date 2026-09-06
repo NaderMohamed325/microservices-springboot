@@ -16,8 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -58,6 +58,7 @@ public class AccountsController {
         log.info("Account created with id: {} for customerId: {}", account.getId(), targetCustomerId);
         return ResponseEntity.status(201).body(account);
     }
+
     @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all accounts", description = "Retrieve paginated and sorted list of accounts (ADMIN only)")

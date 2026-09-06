@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class OutboxTriggerService {
-    private  final OutboxPublishService outboxPublishService;
+    private final OutboxPublishService outboxPublishService;
 
 
     @Scheduled(fixedDelay = 2000)

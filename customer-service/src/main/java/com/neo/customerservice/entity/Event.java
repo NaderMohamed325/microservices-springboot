@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Event extends BaseEntityAudit{
+public class Event extends BaseEntityAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,5 +38,5 @@ public class Event extends BaseEntityAudit{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private OutBoxStatus status= OutBoxStatus.PENDING;
+    private OutBoxStatus status = OutBoxStatus.PENDING;
 }

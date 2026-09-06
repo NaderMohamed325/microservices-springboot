@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account extends BaseEntityAudit{
+public class Account extends BaseEntityAudit {
 
     @Id
     @Column(name = "id", updatable = false)
