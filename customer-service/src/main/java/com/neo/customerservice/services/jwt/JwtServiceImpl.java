@@ -31,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(user.getUsername())
-                .claim("roles", user.getAuthorities())
+                .claim("role", user.getAuthorities())
                 .claim("userId", user.getId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
