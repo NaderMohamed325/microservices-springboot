@@ -22,9 +22,11 @@ public class Event extends BaseEntityAudit{
     private UUID id;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private AggregateType aggregateType;
 
     @Column(nullable = false)
