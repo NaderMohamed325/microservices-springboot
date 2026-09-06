@@ -23,10 +23,11 @@ public class SecurityConfiguration {
         // Read the "role" claim from the JWT
         authoritiesConverter.setAuthoritiesClaimName("role");
 
-        authoritiesConverter.setAuthorityPrefix("");
+        authoritiesConverter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter converter =
                 new JwtAuthenticationConverter();
+
 
         converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
 
@@ -39,6 +40,8 @@ public class SecurityConfiguration {
             JwtAuthenticationConverter jwtAuthenticationConverter,
             AuthenticationEntryPoint authenticationEntryPoint) {
 
+        log.info("Configuring account-service security filter chain");
+
         http.
                 exceptionHandling(exception-> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -46,6 +49,7 @@ public class SecurityConfiguration {
 
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
