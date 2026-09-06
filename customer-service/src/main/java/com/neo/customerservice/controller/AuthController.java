@@ -38,6 +38,7 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "User already exists")
     })
     public ResponseEntity<UserOutputDto> register(@Valid @RequestBody CreateUserInputDto dto) {
+        log.info("Registering new user with username: {}", dto.getUsername());
         UserOutputDto user = this.authService.registerUser(dto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }

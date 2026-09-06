@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Customers", description = "Customer management operations")
 public class CustomerController {
 
@@ -42,6 +44,7 @@ public class CustomerController {
             @RequestParam(defaultValue = "id") String sortBy,
             @Parameter(description = "Sort direction (asc or desc)", example = "asc")
             @RequestParam(defaultValue = "asc") String sortDir) {
+        log.info("Fetching all customers - page: {}, size: {}, sortBy: {}, sortDir: {}", page, size, sortBy, sortDir);
         return userService.getCustomersPaginated(page, size, sortBy, sortDir);
     }
 
@@ -57,6 +60,7 @@ public class CustomerController {
     public ResponseEntity<UserOutputDto> getCustomerById(
             @Parameter(description = "Customer ID", required = true, example = "1")
             @PathVariable("id") Long customerId) {
+        log.info("Fetching customer with id: {}", customerId);
         UserOutputDto userOutputDto = userService.getUserByIdOutputDto(customerId);
         return ResponseEntity.ok(userOutputDto);
     }
@@ -73,6 +77,7 @@ public class CustomerController {
     public ResponseEntity<Void> deleteCustomer(
             @Parameter(description = "Customer ID", required = true, example = "1")
             @PathVariable("id") Long customerId) {
+        log.info("Deleting customer with id: {}", customerId);
         userService.deleteUser(customerId);
         return ResponseEntity.noContent().build();
     }
@@ -87,6 +92,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "404", description = "Customer not found")
     })
     public ResponseEntity<UserOutputDto> updateCustomer(@AuthenticationPrincipal User actor, @Valid @RequestBody UpdateUserInputDto updateUserInputDto) {
+        log.info("Updating customer with id: {}", actor.getId());
         UserOutputDto updatedUser = userService.updateUser(actor.getId(), updateUserInputDto);
         return ResponseEntity.ok(updatedUser);
     }
