@@ -5,8 +5,6 @@ spring:
     security:
         jwt:
             secret: 129uK0rEfjBgRBOnD4ax32OagxZh7Ug/cgsBXVr6doY=
-            expiration: 3600000
-
     datasource:
         driver-class-name: org.postgresql.Driver
         url: jdbc:postgresql://database-accoutns:5433/postgres
