@@ -7,7 +7,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,21 +20,34 @@ public class OutboxPublishServiceImpl implements OutboxPublishService {
 
     @Override
     @Transactional
-    @Scheduled(fixedDelay = 10000)
     public void publishOutboxEvents() {
-        var events = eventRepository.findByStatusOrderByCreatedDateAsc(OutBoxStatus.PENDING.name(), 100);
+
+        var events = eventRepository
+                .findByStatusOrderByCreatedDateAsc(
+                        OutBoxStatus.PENDING.name(),
+                        100
+                );
+
         if (events.isEmpty()) {
             log.info("No pending events to publish.");
             return;
         }
-        for(Event event : events) {
+
+        for (Event event : events) {
             try {
-                kafkaTemplate.send(event.getAggregateType().name(), event);
+                kafkaTemplate
+                        .send(event.getAggregateType().name(), event)
+                        .get();
                 event.setStatus(OutBoxStatus.PROCESSED);
                 eventRepository.save(event);
+
                 log.info("Published event: {}", event);
             } catch (Exception e) {
-                log.error("Failed to publish event: {}", event, e);
+                log.error(
+                        "Failed to publish event: {}",
+                        event.getId(),
+                        e
+                );
             }
         }
     }
