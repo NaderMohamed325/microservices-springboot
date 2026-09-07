@@ -1,13 +1,15 @@
 spring:
     application:
-        name: accounts-service
+        name: account-service
 
     security:
         jwt:
             secret: 129uK0rEfjBgRBOnD4ax32OagxZh7Ug/cgsBXVr6doY=
+            expiration: 300000
+
     datasource:
         driver-class-name: org.postgresql.Driver
-        url: jdbc:postgresql://database-accoutns:5433/postgres
+        url: jdbc:postgresql://database-accounts:5432/postgres
         username: postgres
         password: postgres
 
@@ -22,6 +24,21 @@ spring:
     data:
         jdbc:
             dialect: postgresql
+
+    kafka:
+        bootstrap-servers: kafka:9092
+
+        consumer:
+            group-id: accounts-service-group
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            properties:
+                spring.json.trusted.packages: '*'
+
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
     port: 8002

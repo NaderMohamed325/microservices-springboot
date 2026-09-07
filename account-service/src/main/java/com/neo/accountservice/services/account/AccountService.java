@@ -19,4 +19,8 @@ public interface AccountService {
 
     void deleteAccount(Long accountId);
 
+    void deleteAccountsByCustomerId(Long customerId);
+
+    void updateCustomerStatus(Long customerId, boolean enabled);
+
 }

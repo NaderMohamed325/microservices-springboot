@@ -3,6 +3,7 @@ package com.neo.accountservice.services.consumer;
 
 import com.neo.accountservice.dto.user.events.UserCreatedEvent;
 import com.neo.accountservice.dto.user.events.UserDeletedEvent;
+import com.neo.accountservice.dto.user.events.UserStatusChangedEvent;
 import com.neo.accountservice.entity.Event;
 import com.neo.accountservice.enums.AccountType;
 import com.neo.accountservice.services.account.AccountService;
@@ -34,6 +35,14 @@ public class CustomerEventConsumerImpl implements CustomerEventConsumer {
                 handleCustomerCreatedEvent(event);
                 break;
 
+            case USER_CUSTOMER_DELETED:
+                handleCustomerDeletedEvent(event);
+                break;
+
+            case USER_CUSTOMER_STATUS_CHANGED:
+                handleCustomerStatusChangedEvent(event);
+                break;
+
             default:
                 log.warn("Received unknown event type: {}", event.getEventType());
         }
@@ -51,5 +60,12 @@ public class CustomerEventConsumerImpl implements CustomerEventConsumer {
     void handleCustomerDeletedEvent(Event event) {
         UserDeletedEvent userDeletedEvent = objectMapper.readValue(event.getPayload(), UserDeletedEvent.class);
         log.info("Received UserDeletedEvent: {}", userDeletedEvent);
+        accountService.deleteAccountsByCustomerId(userDeletedEvent.getUserId());
+    }
+
+    void handleCustomerStatusChangedEvent(Event event) {
+        UserStatusChangedEvent statusChangedEvent = objectMapper.readValue(event.getPayload(), UserStatusChangedEvent.class);
+        log.info("Received UserStatusChangedEvent: {}", statusChangedEvent);
+        accountService.updateCustomerStatus(statusChangedEvent.getUserId(), statusChangedEvent.isEnabled());
     }
 }
