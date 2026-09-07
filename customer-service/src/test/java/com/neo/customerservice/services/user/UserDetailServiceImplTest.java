@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
@@ -59,7 +58,7 @@ class UserDetailServiceImplTest {
         UserDetails result = userDetailsService.loadUserByUsername("testuser");
 
         assertThat(result.getAuthorities()).hasSize(1);
-        assertThat(result.getAuthorities().iterator().next()).isEqualTo(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        assertThat(result.getAuthorities().iterator().next().getAuthority()).isEqualTo("ROLE_CUSTOMER");
     }
 
     @Test

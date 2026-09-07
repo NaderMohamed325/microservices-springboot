@@ -5,6 +5,7 @@ import com.neo.customerservice.dto.user.input.LoginUserInputDto;
 import com.neo.customerservice.dto.user.output.LoginUserOutputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
 import com.neo.customerservice.entity.User;
+import com.neo.customerservice.enums.UserRoles;
 import com.neo.customerservice.services.jwt.JwtService;
 import com.neo.customerservice.services.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +40,7 @@ class AuthServiceImplTest {
 
     private LoginUserInputDto loginUserInputDto;
     private CreateUserInputDto createUserInputDto;
-    private UserDetails userDetails;
+    private User testUser;
     private UserOutputDto userOutputDto;
 
     @BeforeEach
@@ -54,10 +56,13 @@ class AuthServiceImplTest {
                 .password("password123")
                 .build();
 
-        userDetails = org.springframework.security.core.userdetails.User.builder()
+        testUser = User.builder()
+                .id(1L)
                 .username("testuser")
+                .email("test@example.com")
                 .password("encodedPassword")
-                .roles("CUSTOMER")
+                .role(UserRoles.CUSTOMER)
+                .addresses(new ArrayList<>())
                 .build();
 
         userOutputDto = UserOutputDto.builder()
@@ -69,21 +74,21 @@ class AuthServiceImplTest {
 
     @Test
     void login_validCredentials_returnsLoginUserOutputDto() {
-        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(testUser);
+        when(jwtService.generateToken(testUser)).thenReturn("jwt-token-123");
 
         LoginUserOutputDto result = authService.login(loginUserInputDto);
 
         assertThat(result).isNotNull();
         assertThat(result.getAccessToken()).isEqualTo("jwt-token-123");
         verify(userDetailsService).loadUserByUsername("testuser");
-        verify(jwtService).generateToken((User) userDetails);
+        verify(jwtService).generateToken(testUser);
     }
 
     @Test
     void login_validCredentials_loadsUserDetails() {
-        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(testUser);
+        when(jwtService.generateToken(testUser)).thenReturn("jwt-token-123");
 
         authService.login(loginUserInputDto);
 
@@ -92,12 +97,12 @@ class AuthServiceImplTest {
 
     @Test
     void login_validCredentials_generatesToken() {
-        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken((User) userDetails)).thenReturn("jwt-token-123");
+        when(userDetailsService.loadUserByUsername("testuser")).thenReturn(testUser);
+        when(jwtService.generateToken(testUser)).thenReturn("jwt-token-123");
 
         authService.login(loginUserInputDto);
 
-        verify(jwtService).generateToken((User) userDetails);
+        verify(jwtService).generateToken(testUser);
     }
 
     @Test

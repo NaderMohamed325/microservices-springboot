@@ -8,6 +8,7 @@ import com.neo.customerservice.enums.UserRoles;
 import com.neo.customerservice.exceptions.UserAlreadyExistsException;
 import com.neo.customerservice.exceptions.UserNotFoundException;
 import com.neo.customerservice.repository.UserRepository;
+import com.neo.customerservice.services.event.EventService;
 import com.neo.customerservice.services.user.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,9 @@ class UserServiceImplTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private EventService eventService;
 
     @InjectMocks
     private UserServiceImpl userService;
