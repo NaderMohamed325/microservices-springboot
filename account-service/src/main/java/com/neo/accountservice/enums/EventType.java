@@ -3,5 +3,6 @@ package com.neo.accountservice.enums;
 public enum EventType {
     USER_CUSTOMER_CREATED,
     USER_CUSTOMER_UPDATED,
-    USER_CUSTOMER_DELETED
+    USER_CUSTOMER_DELETED,
+    USER_CUSTOMER_STATUS_CHANGED
 }

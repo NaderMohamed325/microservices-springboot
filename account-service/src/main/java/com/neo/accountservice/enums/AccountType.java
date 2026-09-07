@@ -1,7 +1,7 @@
 package com.neo.accountservice.enums;
 
 public enum AccountType {
+    SALARY,
     SAVINGS,
-    CHECKING,
-    FIXED_DEPOSIT
+    INVESTMENT
 }
