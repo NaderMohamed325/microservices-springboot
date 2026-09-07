@@ -23,6 +23,42 @@ public class ExceptionControllerAdvice {
         return buildResponse(HttpStatus.FORBIDDEN, "Access denied");
     }
 
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountNotFoundException(AccountNotFoundException ex) {
+        log.warn("Account not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomerNotFoundException(CustomerNotFoundException ex) {
+        log.warn("Customer not found: {}", ex.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(CustomerInactiveException.class)
+    public ResponseEntity<Map<String, Object>> handleCustomerInactiveException(CustomerInactiveException ex) {
+        log.warn("Customer inactive: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(SalaryAccountAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleSalaryAccountAlreadyExistsException(SalaryAccountAlreadyExistsException ex) {
+        log.warn("Salary account already exists: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(MaxAccountsReachedException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxAccountsReachedException(MaxAccountsReachedException ex) {
+        log.warn("Max accounts reached: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccountSuspendedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountSuspendedException(AccountSuspendedException ex) {
+        log.warn("Account suspended: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
         log.warn("Validation failed: {}", ex.getMessage());
@@ -36,12 +72,6 @@ public class ExceptionControllerAdvice {
                 "message", "Validation failed",
                 "details", errors
         ), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-        log.error("Runtime error: {}", ex.getMessage(), ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
     @ExceptionHandler(Exception.class)
