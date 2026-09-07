@@ -1,12 +1,14 @@
 # Bank Microservices
 
 A domain-driven microservices system for managing bank customers and accounts, built with Spring Boot 4.1.1, Java 17,
-Apache Kafka, and PostgreSQL. The two services communicate asynchronously via the **Transactional Outbox pattern** and
+Apache Kafka, PostgreSQL, and Netflix Eureka. The system features a **service discovery architecture** with Eureka,
+where multiple microservices communicate asynchronously via the **Transactional Outbox pattern** and
 **Event-Driven Architecture (EDA)**.
 
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
+- [Service Discovery with Eurka](#service-discovery-with-eurka)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
@@ -49,11 +51,22 @@ Apache Kafka, and PostgreSQL. The two services communicate asynchronously via th
 │  └────────────────────┘  │   │                           │
 └──────────────┬───────────┘   └──────────────┬────────────┘
                │                              │
+               │ Registers to Eureka          │ Registers to Eureka
+               │                              │
                v                              v
-┌──────────────────────┐         ┌──────────────────────┐
-│  PostgreSQL (5432)   │         │  PostgreSQL (5433)   │
-│  database-customers  │         │  database-accounts   │
-└──────────────────────┘         └──────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│         Netflix Eureka Server (Port 8761)               │
+│     Service Discovery & Service Registry                │
+│  - Customer Service Registration                        │
+│  - Account Service Registration                         │
+│  - Health Checks & Instance Status                      │
+└──────────────┬─────────────────────────────┬────────────┘
+               │                             │
+               v                             v
+┌──────────────────────────┐   ┌──────────────────────────┐
+│  PostgreSQL (5432)       │   │  PostgreSQL (5433)       │
+│  database-customers      │   │  database-accounts       │
+└──────────────────────────┘   └──────────────────────────┘
 
                ┌──────────────────────────┐
                │    Apache Kafka (9092)   │
@@ -74,21 +87,23 @@ Apache Kafka, and PostgreSQL. The two services communicate asynchronously via th
 
 ## Tech Stack
 
-| Category         | Technology                   | Version                  |
-|------------------|------------------------------|--------------------------|
-| Language         | Java                         | 17                       |
-| Framework        | Spring Boot                  | 4.1.1                    |
-| Build Tool       | Maven                        | 3.9.6                    |
-| Database         | PostgreSQL                   | 18.3                     |
-| ORM              | Spring Data JPA + Hibernate  | (managed by Spring Boot) |
-| Messaging        | Apache Kafka                 | 4.3.1 (KRaft)            |
-| Security         | Spring Security + JWT (JJWT) | 0.12.6                   |
-| API Docs         | SpringDoc OpenAPI            | 2.7.0                    |
-| Serialization    | Jackson                      | 2.22.1                   |
-| Code Gen         | Lombok                       | (managed)                |
-| Testing          | JUnit 5, Mockito, H2, JaCoCo | 0.8.12 (JaCoCo)          |
-| Containerization | Docker + Docker Compose      | Multi-stage builds       |
-| Monitoring       | Spring Boot Actuator         | (managed)                |
+| Category          | Technology                   | Version                  |
+| ----------------- | ---------------------------- | ------------------------ |
+| Language          | Java                         | 17                       |
+| Framework         | Spring Boot                  | 4.1.1                    |
+| Service Discovery | Netflix Eureka               | (Spring Cloud managed)   |
+| Cloud Framework   | Spring Cloud                 | 2023.0.x                 |
+| Build Tool        | Maven                        | 3.9.6                    |
+| Database          | PostgreSQL                   | 18.3                     |
+| ORM               | Spring Data JPA + Hibernate  | (managed by Spring Boot) |
+| Messaging         | Apache Kafka                 | 4.3.1 (KRaft)            |
+| Security          | Spring Security + JWT (JJWT) | 0.12.6                   |
+| API Docs          | SpringDoc OpenAPI            | 2.7.0                    |
+| Serialization     | Jackson                      | 2.22.1                   |
+| Code Gen          | Lombok                       | (managed)                |
+| Testing           | JUnit 5, Mockito, H2, JaCoCo | 0.8.12 (JaCoCo)          |
+| Containerization  | Docker + Docker Compose      | Multi-stage builds       |
+| Monitoring        | Spring Boot Actuator         | (managed)                |
 
 ---
 
@@ -100,6 +115,14 @@ bank-microservices/
 ├── .env.example                    # Environment variable template
 ├── postman_collection.json         # Pre-configured API test collection
 ├── qodana.yaml                     # Static analysis config
+│
+├── eurka-server/                   # Eureka Service Discovery (Port 8761)
+│   ├── pom.xml
+│   ├── HELP.md
+│   └── src/main/java/com/neo/eurkaserver/
+│       ├── EurkaServerApplication.java   # @EnableEurekaServer
+│       └── resources/
+│           └── application.yml
 │
 ├── customer-service/               # Customer management (Port 8001)
 │   ├── pom.xml
@@ -139,6 +162,8 @@ bank-microservices/
 │       └── exceptions/             # Custom exceptions + handler
 ```
 
+````
+
 ---
 
 ## Prerequisites
@@ -157,7 +182,7 @@ bank-microservices/
 git clone <repository-url>
 cd bank-microservices
 cp .env.example .env
-```
+````
 
 ### 2. Run with Docker Compose
 
@@ -168,39 +193,48 @@ docker-compose up --build
 This starts:
 | Service | URL |
 |---|---|
+| eurka-server (Eureka) | `http://localhost:8761` |
 | customer-service | `http://localhost:8001` |
 | account-service | `http://localhost:8002` |
 | PostgreSQL (customers) | `localhost:5432` |
 | PostgreSQL (accounts) | `localhost:5433` |
 | Kafka | `localhost:9092` |
 
+**Note**: Ensure the Eureka Server starts first so that other services can register with it.
+
 ### 3. Run locally (without Docker)
 
-Start PostgreSQL and Kafka manually, then:
+Start PostgreSQL, Kafka, and Eureka Server manually, then:
 
 ```bash
-# Terminal 1 - Customer Service
+# Terminal 1 - Eureka Server
+cd eurka-server
+mvn spring-boot:run
+
+# Terminal 2 - Customer Service
 cd customer-service
 mvn spring-boot:run
 
-# Terminal 2 - Account Service
+# Terminal 3 - Account Service
 cd account-service
 mvn spring-boot:run
 ```
+
+After starting all services, check the Eureka dashboard at `http://localhost:8761` to see registered instances.
 
 ### 4. Default Admin Account
 
 On startup, an admin user is seeded:
 
 | Field    | Value   |
-|----------|---------|
+| -------- | ------- |
 | username | `admin` |
 | password | `admin` |
 
 ### 5. Environment Variables
 
 | Variable            | Default    | Description                     |
-|---------------------|------------|---------------------------------|
+| ------------------- | ---------- | ------------------------------- |
 | `POSTGRES_USER`     | `postgres` | PostgreSQL username             |
 | `POSTGRES_PASSWORD` | `postgres` | PostgreSQL password             |
 | `JWT_SECRET`        | `secret`   | Shared JWT signing key (Base64) |
@@ -215,14 +249,14 @@ On startup, an admin user is seeded:
 #### Authentication
 
 | Method | Endpoint                | Description             | Auth   |
-|--------|-------------------------|-------------------------|--------|
+| ------ | ----------------------- | ----------------------- | ------ |
 | `POST` | `/api/v1/auth/register` | Register a new customer | Public |
 | `POST` | `/api/v1/auth/login`    | Login and receive JWT   | Public |
 
 #### Customers
 
 | Method   | Endpoint                        | Description                | Auth            |
-|----------|---------------------------------|----------------------------|-----------------|
+| -------- | ------------------------------- | -------------------------- | --------------- |
 | `GET`    | `/api/v1/customers`             | List customers (paginated) | ADMIN, CUSTOMER |
 | `GET`    | `/api/v1/customers/{id}`        | Get customer by ID         | ADMIN, CUSTOMER |
 | `PUT`    | `/api/v1/customers`             | Update own profile         | ADMIN, CUSTOMER |
@@ -234,7 +268,7 @@ On startup, an admin user is seeded:
 #### Accounts
 
 | Method   | Endpoint                                 | Description                   | Auth            |
-|----------|------------------------------------------|-------------------------------|-----------------|
+| -------- | ---------------------------------------- | ----------------------------- | --------------- |
 | `POST`   | `/api/v1/accounts`                       | Create an account             | ADMIN, CUSTOMER |
 | `GET`    | `/api/v1/accounts`                       | List all accounts (paginated) | ADMIN only      |
 | `GET`    | `/api/v1/accounts/{id}`                  | Get account by ID             | ADMIN, CUSTOMER |
@@ -245,7 +279,8 @@ On startup, an admin user is seeded:
 ### Swagger UI
 
 | Service          | URL                                           |
-|------------------|-----------------------------------------------|
+| ---------------- | --------------------------------------------- |
+| eurka-server     | `http://localhost:8761` (Eureka Dashboard)    |
 | customer-service | `http://localhost:8001/swagger-ui/index.html` |
 | account-service  | `http://localhost:8002/swagger-ui/index.html` |
 
@@ -274,7 +309,7 @@ Register -> Login -> Receive JWT -> Use as Bearer token
 ### Security Architecture
 
 | Aspect           | customer-service                              | account-service                        |
-|------------------|-----------------------------------------------|----------------------------------------|
+| ---------------- | --------------------------------------------- | -------------------------------------- |
 | Mechanism        | Custom `JwtAuthFilter` (OncePerRequestFilter) | Spring Security OAuth2 Resource Server |
 | JWT Library      | JJWT (0.12.6)                                 | Spring `NimbusJwtDecoder`              |
 | Public Endpoints | `/api/v1/auth/**`, Swagger                    | Swagger only                           |
@@ -284,7 +319,7 @@ Register -> Login -> Receive JWT -> Use as Bearer token
 ### Role-Based Access
 
 | Role       | Permissions                                                 |
-|------------|-------------------------------------------------------------|
+| ---------- | ----------------------------------------------------------- |
 | `ADMIN`    | Full access to all endpoints                                |
 | `CUSTOMER` | View/update own profile, create accounts, view own accounts |
 
@@ -308,7 +343,7 @@ Instead of publishing directly to Kafka (which risks data loss on failure), the 
 ### Event Types
 
 | Event                          | Trigger               | Account-Service Action                 |
-|--------------------------------|-----------------------|----------------------------------------|
+| ------------------------------ | --------------------- | -------------------------------------- |
 | `USER_CUSTOMER_CREATED`        | New user registered   | Auto-creates a SAVINGS account         |
 | `USER_CUSTOMER_DELETED`        | User deleted          | Deletes all accounts for that customer |
 | `USER_CUSTOMER_STATUS_CHANGED` | User enabled/disabled | Suspends or reactivates all accounts   |
@@ -316,7 +351,7 @@ Instead of publishing directly to Kafka (which risks data loss on failure), the 
 ### Kafka Configuration
 
 | Property               | Value                    |
-|------------------------|--------------------------|
+| ---------------------- | ------------------------ |
 | Topic                  | `USER_CUSTOMER`          |
 | Customer-service group | `customer-service-group` |
 | Account-service group  | `accounts-service-group` |
@@ -337,7 +372,7 @@ Instead of publishing directly to Kafka (which risks data loss on failure), the 
 ### Account Rules
 
 | Rule                      | Detail                                                              |
-|---------------------------|---------------------------------------------------------------------|
+| ------------------------- | ------------------------------------------------------------------- |
 | Account number            | 10 digits: `customerId * 1000 + sequenceNumber`                     |
 | Max accounts per customer | 9 (sequence 1-9)                                                    |
 | Salary account limit      | Only 1 SALARY account per customer                                  |
@@ -351,7 +386,7 @@ Instead of publishing directly to Kafka (which risks data loss on failure), the 
 ### Account Number Examples
 
 | Customer ID | Sequence | Account Number     |
-|-------------|----------|--------------------|
+| ----------- | -------- | ------------------ |
 | 1000001     | 1        | `1000001001`       |
 | 1000001     | 2        | `1000001002`       |
 | 1000001     | 9        | `1000001009` (max) |
@@ -387,7 +422,7 @@ open target/site/jacoco/index.html
 ### Test Summary
 
 | Service          | Test Classes | Approach                                              |
-|------------------|--------------|-------------------------------------------------------|
+| ---------------- | ------------ | ----------------------------------------------------- |
 | customer-service | 20+          | `@WebMvcTest`, `@DataJpaTest`, Mockito unit tests     |
 | account-service  | 7+           | Mockito unit tests, `@DataJpaTest`, `@SpringBootTest` |
 
@@ -560,13 +595,13 @@ A Redis-backed token revocation list solves this problem:
 
 **Why Redis:**
 
-| Aspect | Why Redis Fits |
-|---|---|
-| Speed | In-memory lookups add <1ms latency to auth checks |
-| TTL | Built-in key expiration — revoked tokens auto-clean after token expiry |
-| Shared state | Both services read from the same Redis instance |
-| Simplicity | `SET key value EX seconds` is the entire API needed |
-| Persistence | Can be configured with AOF/RDB for durability if needed |
+| Aspect       | Why Redis Fits                                                         |
+| ------------ | ---------------------------------------------------------------------- |
+| Speed        | In-memory lookups add <1ms latency to auth checks                      |
+| TTL          | Built-in key expiration — revoked tokens auto-clean after token expiry |
+| Shared state | Both services read from the same Redis instance                        |
+| Simplicity   | `SET key value EX seconds` is the entire API needed                    |
+| Persistence  | Can be configured with AOF/RDB for durability if needed                |
 
 **Implementation would require:**
 
@@ -608,6 +643,7 @@ With Keycloak:
 ```
 
 This eliminates:
+
 - `JwtServiceImpl` and all custom token generation logic
 - `JwtAuthFilter` in customer-service (Keycloak handles authentication)
 - The shared secret configuration between services
@@ -664,6 +700,14 @@ Two profiles are configured:
 
 Both services use `@EnableMethodSecurity` with `@PreAuthorize` annotations on controllers, enabling fine-grained
 role-based access control at the method level.
+
+### 11. Netflix Eureka for Service Discovery
+
+Instead of hardcoding service endpoints (e.g., `http://customer-service:8001`), the system uses **Netflix Eureka**
+for dynamic service discovery:
+
+- Services self-register with Eureka on startup
+- Services can discover each other by querying the Eureka registry
 
 ---
 

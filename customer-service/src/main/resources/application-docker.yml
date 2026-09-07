@@ -1,45 +1,55 @@
 spring:
-    application:
-        name: customer-service
+  application:
+    name: customer-service
 
-    security:
-        jwt:
-            secret: 129uK0rEfjBgRBOnD4ax32OagxZh7Ug/cgsBXVr6doY=
-            expiration: 300000
+  security:
+    jwt:
+      secret: 129uK0rEfjBgRBOnD4ax32OagxZh7Ug/cgsBXVr6doY=
+      expiration: 300000
 
-    datasource:
-        driver-class-name: org.postgresql.Driver
-        url: jdbc:postgresql://database-customers:5432/postgres
-        username: postgres
-        password: postgres
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://database-customers:5432/postgres
+    username: postgres
+    password: postgres
 
-    jpa:
-        database: postgresql
-        hibernate:
-            ddl-auto: create-drop
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: create-drop
 
-        show-sql: true
-        defer-datasource-initialization: true
+    show-sql: true
+    defer-datasource-initialization: true
 
-    data:
-        jdbc:
-            dialect: postgresql
+  data:
+    jdbc:
+      dialect: postgresql
 
-    kafka:
-        bootstrap-servers: kafka:9092
+  kafka:
+    bootstrap-servers: kafka:9092
 
-        consumer:
-            group-id: customer-service-group
-            auto-offset-reset: earliest
-            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-            properties:
-                spring.json.trusted.packages: '*'
+    consumer:
+      group-id: customer-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 
-        producer:
-            key-serializer: org.apache.kafka.common.serialization.StringSerializer
-            value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
-    port: 8001
+  port: 8001
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eurka-server:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: customer-service
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
