@@ -82,6 +82,25 @@ public class CustomerController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update customer status", description = "Enable or disable a customer account (ADMIN only)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Customer status updated successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing JWT token"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
+    })
+    public ResponseEntity<UserOutputDto> updateCustomerStatus(
+            @Parameter(description = "Customer ID", required = true, example = "1")
+            @PathVariable("id") Long customerId,
+            @Parameter(description = "Enable or disable the customer", required = true)
+            @RequestParam boolean enabled) {
+        log.info("Updating status for customer with id: {} enabled: {}", customerId, enabled);
+        UserOutputDto updatedUser = userService.updateUserStatus(customerId, enabled);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @PutMapping()
     @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
     @Operation(summary = "Update customer profile", description = "Update the authenticated user's profile")

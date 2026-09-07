@@ -23,4 +23,6 @@ public interface UserService {
     UserOutputDto getUserByIdOutputDto(Long userId);
 
     void deleteUser(Long userId);
+
+    UserOutputDto updateUserStatus(Long userId, boolean enabled);
 }

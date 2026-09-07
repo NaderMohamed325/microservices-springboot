@@ -1,6 +1,8 @@
 package com.neo.customerservice.services.user;
 
 import com.neo.customerservice.dto.user.events.UserCreatedEvent;
+import com.neo.customerservice.dto.user.events.UserDeletedEvent;
+import com.neo.customerservice.dto.user.events.UserStatusChangedEvent;
 import com.neo.customerservice.dto.user.input.CreateUserInputDto;
 import com.neo.customerservice.dto.user.input.UpdateUserInputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
@@ -143,8 +145,40 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         User user = this.getUserById(userId);
 
-        userRepository.deleteUserById(user.getId());
+        userRepository.delete(user);
+
+        UserDeletedEvent userDeletedEvent = UserDeletedEvent.builder()
+                .userId(user.getId())
+                .build();
+
+        eventService.saveEvent(EventType.USER_CUSTOMER_DELETED,
+                AggregateType.USER_CUSTOMER,
+                user.getId(),
+                userDeletedEvent);
+
         log.info("User deleted with id: {}", user.getId());
+    }
+
+    @Override
+    @Transactional
+    public UserOutputDto updateUserStatus(Long userId, boolean enabled) {
+        User user = this.getUserById(userId);
+
+        user.setEnabled(enabled);
+        userRepository.save(user);
+
+        UserStatusChangedEvent statusChangedEvent = UserStatusChangedEvent.builder()
+                .userId(user.getId())
+                .enabled(enabled)
+                .build();
+
+        eventService.saveEvent(EventType.USER_CUSTOMER_STATUS_CHANGED,
+                AggregateType.USER_CUSTOMER,
+                user.getId(),
+                statusChangedEvent);
+
+        log.info("User status updated with id: {} enabled: {}", user.getId(), enabled);
+        return toOutputDto(user);
     }
 
 
