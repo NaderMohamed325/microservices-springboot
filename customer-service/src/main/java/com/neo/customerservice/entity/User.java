@@ -38,6 +38,10 @@ public class User extends BaseEntityAudit implements UserDetails {
     @JsonIgnore
     private String password;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean enabled = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Address> addresses = new ArrayList<>();
 
@@ -102,6 +106,6 @@ public class User extends BaseEntityAudit implements UserDetails {
      */
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return enabled;
     }
 }
