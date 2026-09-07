@@ -5,7 +5,7 @@ spring:
     security:
         jwt:
             secret: 129uK0rEfjBgRBOnD4ax32OagxZh7Ug/cgsBXVr6doY=
-            expiration: 3600000
+            expiration: 300000
 
     datasource:
         driver-class-name: org.postgresql.Driver
@@ -24,6 +24,21 @@ spring:
     data:
         jdbc:
             dialect: postgresql
+
+    kafka:
+        bootstrap-servers: kafka:9092
+
+        consumer:
+            group-id: customer-service-group
+            auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            properties:
+                spring.json.trusted.packages: '*'
+
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
     port: 8001
