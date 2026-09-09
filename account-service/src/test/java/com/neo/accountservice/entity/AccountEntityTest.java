@@ -116,11 +116,11 @@ class AccountEntityTest {
     }
 
     @Test
-    void saveAccount_duplicateId_throwsException() {
+    void saveAccount_duplicateCustomerIdAndSeqNo_throwsException() {
         accountRepository.save(createTestAccount(1001L, 1L, 1L));
         accountRepository.flush();
 
-        Account duplicate = createTestAccount(1001L, 2L, 1L);
+        Account duplicate = createTestAccount(1002L, 1L, 1L);
 
         assertThatThrownBy(() -> {
             accountRepository.save(duplicate);

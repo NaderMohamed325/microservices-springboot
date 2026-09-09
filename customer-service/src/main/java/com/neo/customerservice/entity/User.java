@@ -1,6 +1,7 @@
 package com.neo.customerservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.neo.customerservice.enums.CustomerType;
 import com.neo.customerservice.enums.UserRoles;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,6 +52,11 @@ public class User extends BaseEntityAudit implements UserDetails {
     @Builder.Default
     @JsonIgnore
     private UserRoles role = UserRoles.CUSTOMER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    @Builder.Default
+    private CustomerType type = CustomerType.RETAIL;
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

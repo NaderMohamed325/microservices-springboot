@@ -4,6 +4,7 @@ import com.neo.customerservice.dto.user.input.CreateUserInputDto;
 import com.neo.customerservice.dto.user.input.UpdateUserInputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
 import com.neo.customerservice.entity.User;
+import com.neo.customerservice.enums.CustomerType;
 import com.neo.customerservice.enums.UserRoles;
 import com.neo.customerservice.exceptions.UserAlreadyExistsException;
 import com.neo.customerservice.exceptions.UserNotFoundException;
@@ -57,6 +58,7 @@ class UserServiceImplTest {
                 .email("test@example.com")
                 .username("testuser")
                 .password("encodedPassword")
+                .type(CustomerType.RETAIL)
                 .role(UserRoles.CUSTOMER)
                 .build();
 
@@ -84,8 +86,28 @@ class UserServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.getEmail()).isEqualTo("new@example.com");
         assertThat(result.getUsername()).isEqualTo("newuser");
+        assertThat(result.getType()).isEqualTo(CustomerType.RETAIL);
         verify(userRepository).save(any(User.class));
         verify(passwordEncoder).encode("password123");
+    }
+
+    @Test
+    void createUser_withType_returnsUserOutputDtoWithSameType() {
+        CreateUserInputDto typedCreateUserInputDto = CreateUserInputDto.builder()
+                .email("corp@example.com")
+                .username("corpuser")
+                .password("password123")
+                .type(CustomerType.CORPORATE)
+                .build();
+
+        when(userRepository.findByUsername("corpuser")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+
+        UserOutputDto result = userService.createUser(typedCreateUserInputDto);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getType()).isEqualTo(CustomerType.CORPORATE);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
@@ -186,6 +208,7 @@ class UserServiceImplTest {
                 .email("target@example.com")
                 .username("targetuser")
                 .password("encodedPassword")
+                .type(CustomerType.RETAIL)
                 .role(UserRoles.CUSTOMER)
                 .build();
 
@@ -194,6 +217,7 @@ class UserServiceImplTest {
                 .email("updated@example.com")
                 .username("updateduser")
                 .password("newpassword123")
+                .type(CustomerType.INVESTMENT)
                 .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(admin));
@@ -204,6 +228,7 @@ class UserServiceImplTest {
         UserOutputDto result = userService.updateUser(1L, adminUpdateDto);
 
         assertThat(result).isNotNull();
+        assertThat(result.getType()).isEqualTo(CustomerType.INVESTMENT);
         verify(userRepository).save(any(User.class));
         verify(passwordEncoder).encode("newpassword123");
     }
@@ -311,7 +336,7 @@ class UserServiceImplTest {
 
         userService.deleteUser(1L);
 
-        verify(userRepository).deleteUserById(1L);
+        verify(userRepository).delete(testUser);
     }
 
     @Test
@@ -322,6 +347,6 @@ class UserServiceImplTest {
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("User not found with id: 999");
 
-        verify(userRepository, never()).deleteUserById(any());
+        verify(userRepository, never()).delete(any(User.class));
     }
 }
