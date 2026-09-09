@@ -8,6 +8,7 @@ import com.neo.customerservice.dto.user.input.UpdateUserInputDto;
 import com.neo.customerservice.dto.user.output.UserOutputDto;
 import com.neo.customerservice.entity.User;
 import com.neo.customerservice.enums.AggregateType;
+import com.neo.customerservice.enums.CustomerType;
 import com.neo.customerservice.enums.EventType;
 import com.neo.customerservice.enums.UserRoles;
 import com.neo.customerservice.exceptions.UserAlreadyExistsException;
@@ -50,6 +51,7 @@ public class UserServiceImpl implements UserService {
                 .email(createUserDto.getEmail())
                 .username(createUserDto.getUsername())
                 .password(passwordEncoder.encode(createUserDto.getPassword()))
+                .type(createUserDto.getType() == null ? CustomerType.RETAIL : createUserDto.getType())
                 .build();
 
         userRepository.save(user);
@@ -117,6 +119,9 @@ public class UserServiceImpl implements UserService {
         }
         if (updateUserInputDto.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(updateUserInputDto.getPassword()));
+        }
+        if (updateUserInputDto.getType() != null) {
+            user.setType(updateUserInputDto.getType());
         }
 
         userRepository.save(user);
@@ -187,6 +192,7 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
+                .type(user.getType())
                 .build();
     }
 

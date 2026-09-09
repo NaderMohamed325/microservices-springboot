@@ -1,5 +1,6 @@
 package com.neo.customerservice.dto.user.output;
 
+import com.neo.customerservice.enums.CustomerType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -19,4 +20,7 @@ public class UserOutputDto {
 
     @Schema(description = "Unique username", example = "johndoe")
     private String username;
+
+    @Schema(description = "Customer type", example = "RETAIL")
+    private CustomerType type;
 }
